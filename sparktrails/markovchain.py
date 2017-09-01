@@ -1,10 +1,25 @@
-from hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 import numpy as np
-from scipy.sparse import csr_matrix
 import pyspark
+from scipy.sparse import csr_matrix
+
+from hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
 
 class MarkovChain:
+    @staticmethod
+    def parse_hdfs_textfile(textfile_rdd):
+        """
+        :type sc: pyspark.SparkContext
+        :param sc: SparkContext
+
+        :type textfile_rdd: pyspark.RDD
+        :param textfile_rdd: the raw textfile with sparse matrix entries in the format "<sourceid>\t[<targetid>;<probability>][,<targetid>;<probability>]+
+        """
+
+        return textfile_rdd.map(lambda line: line.split("\t")) \
+            .map(lambda parts: (
+        int(parts[0]), np.array([[0] + pos_value.split(";") for pos_value in parts[1].split(",")], dtype=np.float64))) \
+            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1]))))
 
     @staticmethod
     def csr_matrix_to_rdd(sc, matrix, num_slices=None):
