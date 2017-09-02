@@ -7,7 +7,7 @@ from hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
 class MarkovChain:
     @staticmethod
-    def parse_hdfs_textfile(textfile_rdd, maxid=-1):
+    def parse_hdfs_textfile(sc, textfile_rdd, maxid=-1):
         """
         :type sc: pyspark.SparkContext
         :param sc: SparkContext
@@ -22,8 +22,13 @@ class MarkovChain:
             np.array([[0] + pos_value.split(";") for pos_value in parts[1].split(",")], dtype=np.float64)))
         if maxid < 0:
             maxid = max(preparse.flatMap(lambda x: [x[0]] + list(x[1][:, 1])).distinct().collect())
+        # fill up empty lines
+        not_covered_ids = list(set(range(maxid)) - set(preparse.keys().collect()))
+        empty_lines = sc.parallelize(
+            list(zip(not_covered_ids, [csr_matrix(([], ([], [])), shape=(1, maxid))] * len(not_covered_ids))))
         return preparse \
-            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1])), shape=(1, maxid)))
+            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1])), shape=(1, maxid))) \
+            .union(empty_lines)
 
     @staticmethod
     def csr_matrix_to_rdd(sc, matrix, num_slices=None):
