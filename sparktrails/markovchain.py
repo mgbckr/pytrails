@@ -7,7 +7,7 @@ from hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
 class MarkovChain:
     @staticmethod
-    def parse_hdfs_textfile(textfile_rdd):
+    def parse_hdfs_textfile(textfile_rdd, maxid=-1):
         """
         :type sc: pyspark.SparkContext
         :param sc: SparkContext
@@ -15,11 +15,15 @@ class MarkovChain:
         :type textfile_rdd: pyspark.RDD
         :param textfile_rdd: the raw textfile with sparse matrix entries in the format "<sourceid>\t[<targetid>;<probability>][,<targetid>;<probability>]+
         """
-
-        return textfile_rdd.map(lambda line: line.split("\t")) \
+        preparse = textfile_rdd \
+            .map(lambda line: line.split("\t")) \
             .map(lambda parts: (
-        int(parts[0]), np.array([[0] + pos_value.split(";") for pos_value in parts[1].split(",")], dtype=np.float64))) \
-            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1]))))
+            int(parts[0]),
+            np.array([[0] + pos_value.split(";") for pos_value in parts[1].split(",")], dtype=np.float64)))
+        if maxid < 0:
+            maxid = max(preparse.flatMap(lambda x: [x[0]] + list(x[1][:, 1])).distinct().collect())
+        return preparse \
+            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1])), shape=(1, maxid)))
 
     @staticmethod
     def csr_matrix_to_rdd(sc, matrix, num_slices=None):
@@ -33,7 +37,6 @@ class MarkovChain:
         :type num_slices: int
         :param num_slices: slices to use when parallelizing the matrix
         """
-
         matrix_rows = [(i, matrix[i, :]) for i in range(matrix.shape[0])]
         return sc.parallelize(matrix_rows, num_slices)
 
@@ -67,10 +70,8 @@ class MarkovChain:
 
         :return: a marginal likelihood for each given concentration factor
         """
-
         # align transition counts and probabilities
         aligned = transition_counts.leftOuterJoin(transition_probabilities)
-
         # function to calculate marginal likelihoods for each concentration factor;
         # we use row-wise elicitation
         def combine(transition_counts_row, pseudo_counts_row):
@@ -80,7 +81,6 @@ class MarkovChain:
                     pseudo_counts_row * cf,
                     smoothing)
                 for cf in concentration_factors])
-
         # do the actual calculations
         return aligned\
             .mapValues(lambda e: combine(e[0], e[1]))\
