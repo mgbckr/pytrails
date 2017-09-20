@@ -63,3 +63,19 @@ class TestSparkMarkovChain(TestCase):
         sc.stop()
 
         print(ml)
+
+
+    def test_marginal_likelihood_from_rdds(self):
+        sc = pyspark.SparkContext()
+        rawtext_rdd = sc.parallelize([
+            "0\t0;1.0,1;2.0,2;3.0",
+            "1\t0;4.0,1;5.0,2;6.0",
+            "2\t0;7.0,1;8.0,2;9.0"
+        ])
+        transition_counts_rdd = MarkovChain.parse_hdfs_textfile(rawtext_rdd)
+        print(transition_counts_rdd.mapValues(lambda x: x.todense()).collect())
+        transition_probabilities_rdd = transition_counts_rdd. \
+            mapValues(lambda line: normalize(line, "l1", axis=1))
+        ml = MarkovChain.marginal_likelihood(transition_counts_rdd, transition_probabilities_rdd, [0, 1, 2, 5], 1.0)
+        print(ml)
+        sc.stop()

@@ -6,6 +6,7 @@ from ..hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
 
 class MarkovChain:
+
     @staticmethod
     def parse_hdfs_textfile(sc, textfile_rdd, maxid=-1):
         """
@@ -75,8 +76,10 @@ class MarkovChain:
 
         :return: a marginal likelihood for each given concentration factor
         """
+
         # align transition counts and probabilities
         aligned = transition_counts.leftOuterJoin(transition_probabilities)
+
         # function to calculate marginal likelihoods for each concentration factor;
         # we use row-wise elicitation
         def combine(transition_counts_row, pseudo_counts_row):
