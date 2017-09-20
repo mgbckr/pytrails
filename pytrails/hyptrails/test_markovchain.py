@@ -16,6 +16,13 @@ class TestMarkovChain(TestCase):
         ml = MarkovChain.marginal_likelihood(transition_counts, pseudo_counts, 1.0)
         print(ml)
 
+    def test_marginal_likelihood_zeros(self):
+        transition_counts = csr_matrix([[1, 2, 3], [0, 0, 0], [7, 8, 9]], dtype=np.float64)
+        transition_probabilities = normalize(transition_counts, "l1", axis=1)
+        pseudo_counts = transition_probabilities * 5
+        ml = MarkovChain.marginal_likelihood(transition_counts, pseudo_counts, 1.0)
+        print(ml)
+
     def test_marginal_likelihood_hdf5(self):
         """
         I don't think this gets us much because ´.value´ will probably load the complete sparse matrix
