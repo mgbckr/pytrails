@@ -1,4 +1,4 @@
-from hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
+from ..hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 import numpy as np
 from scipy.sparse import csr_matrix
 import h5sparse
