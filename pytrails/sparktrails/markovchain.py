@@ -8,45 +8,6 @@ from ..hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 class MarkovChain:
 
     @staticmethod
-    def parse_hdfs_textfile(sc, textfile_rdd, maxid=-1):
-        """
-        :type sc: pyspark.SparkContext
-        :param sc: SparkContext
-
-        :type textfile_rdd: pyspark.RDD
-        :param textfile_rdd: the raw textfile with sparse matrix entries in the format "<sourceid>\t[<targetid>;<probability>][,<targetid>;<probability>]+
-        """
-        preparse = textfile_rdd \
-            .map(lambda line: line.split("\t")) \
-            .map(lambda parts: (
-            int(parts[0]),
-            np.array([[0] + pos_value.split(";") for pos_value in parts[1].split(",")], dtype=np.float64)))
-        if maxid < 0:
-            maxid = max(preparse.flatMap(lambda x: [x[0]] + list(x[1][:, 1])).distinct().collect())
-        # fill up empty lines
-        not_covered_ids = list(set(range(maxid)) - set(preparse.keys().collect()))
-        empty_lines = sc.parallelize(
-            list(zip(not_covered_ids, [csr_matrix(([], ([], [])), shape=(1, maxid))] * len(not_covered_ids))))
-        return preparse \
-            .mapValues(lambda entries: csr_matrix((entries[:, 2], (entries[:, 0], entries[:, 1])), shape=(1, maxid))) \
-            .union(empty_lines)
-
-    @staticmethod
-    def csr_matrix_to_rdd(sc, matrix, num_slices=None):
-        """
-        :type sc: pyspark.SparkContext
-        :param sc: SparkContext
-
-        :type matrix: csr_matrix
-        :param matrix: the matrix to parallelize
-
-        :type num_slices: int
-        :param num_slices: slices to use when parallelizing the matrix
-        """
-        matrix_rows = [(i, matrix[i, :]) for i in range(matrix.shape[0])]
-        return sc.parallelize(matrix_rows, num_slices)
-
-    @staticmethod
     def marginal_likelihood(
             transition_counts,
             transition_probabilities,
