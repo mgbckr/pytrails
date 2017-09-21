@@ -11,6 +11,10 @@ class TestSparkMatrixUtils(TestCase):
     def setUpClass(cls):
         cls.sc = pyspark.SparkContext()
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.sc.stop()
+
     def test_textfile_rdd_to_tuple_matrix_rdd(self):
         rawtext_rdd = self.sc.parallelize([
             "0\t0;1.0,1;2.0,2;3.0",
@@ -49,6 +53,3 @@ class TestSparkMatrixUtils(TestCase):
 
         print(ml)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.sc.stop()

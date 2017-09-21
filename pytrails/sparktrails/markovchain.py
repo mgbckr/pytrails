@@ -1,6 +1,5 @@
 import numpy as np
 import pyspark
-from scipy.sparse import csr_matrix
 
 from ..hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
@@ -43,15 +42,40 @@ class MarkovChain:
 
         # function to calculate marginal likelihoods for each concentration factor;
         # we use row-wise elicitation
-        def combine(transition_counts_row, pseudo_counts_row):
+        def combine(transition_counts_row, transition_probabilities_row):
             return np.array([
                 HypTrailsMarkovChain.marginal_likelihood(
                     transition_counts_row,
-                    pseudo_counts_row * cf,
+                    transition_probabilities_row * cf,
                     smoothing)
                 for cf in concentration_factors])
+
         # do the actual calculations
         return aligned\
             .mapValues(lambda e: combine(e[0], e[1]))\
             .values()\
             .reduce(lambda a, b: a + b)
+
+    @staticmethod
+    def marginal_likelihood_live_hypothesis(
+            transition_counts_with_destination_features,
+            transition_probability_function,
+            concentration_factors=None,
+            smoothing=1.0):
+
+        def row_ml(row_index, row_values, destination_features):
+
+            transition_probabilities = transition_probability_function(
+                row_index,
+                row_values,
+                destination_features)
+
+            return np.array([
+                HypTrailsMarkovChain.marginal_likelihood(
+                    row_values,
+                    transition_probabilities * cf,
+                    smoothing)
+                for cf in concentration_factors])
+
+        return transition_counts_with_destination_features.\
+            map(lambda e: row_ml(e[0], e[1][0], e[1][1])).sum()
