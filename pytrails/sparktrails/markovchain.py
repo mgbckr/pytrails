@@ -45,7 +45,7 @@ class MarkovChain:
         def combine(transition_counts_row, transition_probabilities_row):
             # A None-valued entry could occur through the join.
             if transition_probabilities_row is None:
-                transition_probabilities_row = csr_matrix(([], ([], [])), shape=(1, transition_counts_row.shape[1]))
+                transition_probabilities_row = csr_matrix((1, transition_counts_row.shape[1]))
             return np.array([
                 HypTrailsMarkovChain.marginal_likelihood(
                     transition_counts_row,
