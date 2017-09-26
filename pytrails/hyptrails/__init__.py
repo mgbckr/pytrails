@@ -1,1 +1,1 @@
-from .markovchain import *
+from .markovchain import MarkovChain
