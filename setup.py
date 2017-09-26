@@ -1,7 +1,8 @@
-from setuptools import setup
+import setuptools as st
 
-setup(
+
+st.setup(
     name='pytrails',
-    version='0.0.1',
-    packages=["pytrails"]
+    version='0.0.2',
+    packages=st.find_packages()
 )
