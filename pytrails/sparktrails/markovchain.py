@@ -1,5 +1,5 @@
 import numpy as np
-import pyspark
+from scipy.sparse import csr_matrix
 
 from ..hyptrails.markovchain import MarkovChain as HypTrailsMarkovChain
 
@@ -43,6 +43,9 @@ class MarkovChain:
         # function to calculate marginal likelihoods for each concentration factor;
         # we use row-wise elicitation
         def combine(transition_counts_row, transition_probabilities_row):
+            # A None-valued entry could occur through the join.
+            if transition_probabilities_row is None:
+                transition_probabilities_row = csr_matrix(([], ([], [])), shape=(1, transition_counts_row.shape[1]))
             return np.array([
                 HypTrailsMarkovChain.marginal_likelihood(
                     transition_counts_row,
