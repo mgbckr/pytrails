@@ -2,7 +2,7 @@ from unittest import TestCase
 from scipy.sparse import csr_matrix
 import numpy as np
 from sklearn.preprocessing import normalize
-from hyptrails.markovchain import MarkovChain
+from . import MarkovChain
 import h5sparse
 import os
 
@@ -43,7 +43,10 @@ class TestMarkovChain(TestCase):
         print(h5f['transition/counts'].h5py_group.attrs["h5sparse_shape"])
         print(h5f['transition/counts'][0:2])
 
-        ml = MarkovChain.marginal_likelihood(3, h5f['transition/counts'].value, h5f['pseudo/counts'].value, 1.0)
+        ml = MarkovChain.marginal_likelihood(
+            h5f['transition/counts'].value,
+            h5f['pseudo/counts'].value,
+            smoothing=1.0)
 
         os.remove("test.h5")
 

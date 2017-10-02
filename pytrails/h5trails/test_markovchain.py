@@ -2,7 +2,7 @@ from unittest import TestCase
 import numpy as np
 from scipy.sparse import csr_matrix
 from sklearn.preprocessing import normalize
-from h5trails.markovchain import MarkovChain
+from . import MarkovChain
 import os
 
 
