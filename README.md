@@ -1,6 +1,6 @@
 # pytrails
 [![Build Status](https://travis-ci.org/mgbckr/pytrails.svg?branch=master)](https://travis-ci.org/mgbckr/pytrails)
-[![Documentation Status](https://readthedocs.org/projects/pip/badge/)](http://pytrails.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/pytrails/badge/)](http://pytrails.readthedocs.io/en/latest/)
 
 A collection of Bayesian methods for hypothesis comparison on sequential data.
 
