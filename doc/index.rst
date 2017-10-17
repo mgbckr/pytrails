@@ -10,6 +10,7 @@ Welcome to pytrails's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   tutorials/quickstart
    tutorials/hyptrails
 
 Indices and tables

@@ -21,6 +21,24 @@ class MarkovChain:
         return ml
 
     @staticmethod
+    def marginal_likelihood_vanilla(transition_counts, pseudo_counts, smoothing=1.0):
+
+        if smoothing <= 0:
+            raise ValueError("Smoothing must be greater than zero (Error: smoothing <= 0).")
+
+        alphas = pseudo_counts + np.array([smoothing])
+
+        ml = 0
+        for i in range(transition_counts.shape[0]):
+            gamma_sum_alphas = gammaln(alphas[i].sum())
+            sum_gamma_nalphas = gammaln((transition_counts[i] + alphas[i]).data).sum()
+            sum_gamma_alphas = gammaln(alphas[i].data).sum()
+            gamma_sum_nalphas = gammaln((transition_counts[i] + alphas[i]).A.sum())
+            ml += (gamma_sum_alphas + sum_gamma_nalphas - sum_gamma_alphas - gamma_sum_nalphas)
+
+        return ml
+
+    @staticmethod
     def marginal_likelihood_masking(transition_counts, pseudo_counts, smoothing=1.0):
         """
         Calculates the marginal likelihood for a first-order Markov chain based on Dirichlet priors.

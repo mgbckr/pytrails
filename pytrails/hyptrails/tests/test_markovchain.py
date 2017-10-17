@@ -11,6 +11,8 @@ WORKING_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestMarkovChain(TestCase):
 
+    # TODO: Make those tests real tests (asserts).
+
     def test_marginal_likelihood(self):
         transition_counts = csr_matrix([[1, 2, 3], [0, 0, 0], [7, 8, 9]], dtype=np.float64)
         transition_probabilities = normalize(transition_counts, "l1", axis=1)
