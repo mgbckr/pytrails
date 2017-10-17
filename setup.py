@@ -3,7 +3,7 @@ import setuptools as st
 
 st.setup(
     name='pytrails',
-    version='0.0.3',
+    version='0.0.4',
     packages=st.find_packages(),
 
     # metadata for upload to PyPI
