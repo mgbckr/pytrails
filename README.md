@@ -16,9 +16,7 @@ pip install pytrails
 ```
 
 ## Quickstart
-For a very basic quickstart example on using HypTrails see here:
-
-
+For a very basic [quickstart example on using the HypTrails implementation of **pytrails**](http://pytrails.readthedocs.io/en/latest/tutorials/quickstart.html), please see the our [docs](http://pytrails.readthedocs.io/en/latest). 
 
 ## Attribution
 TBA
